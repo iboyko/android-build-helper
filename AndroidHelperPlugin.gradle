@@ -1,0 +1,73 @@
+/*
+ * Copyright 2013 Illya Boyko <illya.boyko@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.apache.maven:maven-artifact:3.0.+'
+    }
+}
+
+// This line will enable our plugin for
+// the build that imports this script.
+apply plugin: AndroidBuildHelperPlugin
+
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+
+/**
+ * http://aestasit.com/injecting-utility-methods-in-gradle-project-using-plugin-conventions
+ */
+class AndroidBuildHelperPlugin implements Plugin<Project> {
+    void apply(Project project) {
+    	project.convention.plugins["android-build-helper"] = new AndroidBuildHelperPluginConvention(project)
+    }
+}
+
+/**
+ * Plugin convention class.
+ */
+class AndroidBuildHelperPluginConvention {
+
+    private Project project
+
+    AndroidBuildHelperPluginConvention(Project project) {
+        this.project = project
+    }
+
+    /* DEFINE YOUR UTILITY METHODS HERE */
+
+    def versionCodeFromProjectVersion() {
+		//https://github.com/jayway/maven-android-plugin/blob/master/src/main/java/com/jayway/maven/plugins/android/standalonemojos/ManifestUpdateMojo.java
+        def INCREMENTAL_VERSION_POSITION = 1;
+        def MINOR_VERSION_POSITION = 1000;
+        def MAJOR_VERSION_POSITION = 1000000;
+
+        String verString = project.version
+
+        project.logger.debug("Generating versionCode for " + verString);
+
+        ArtifactVersion artifactVersion = new DefaultArtifactVersion(verString);
+
+        def currentVersionCode = artifactVersion.getMajorVersion() * MAJOR_VERSION_POSITION
+                               + artifactVersion.getMinorVersion() * MINOR_VERSION_POSITION
+                               + artifactVersion.getIncrementalVersion() * INCREMENTAL_VERSION_POSITION;
+        return currentVersionCode;
+    }
+
+}
