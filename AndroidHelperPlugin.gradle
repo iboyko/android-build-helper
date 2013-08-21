@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.apache.maven:maven-artifact:3.0.+'
+    }
+}
+
+// This line will enable our plugin for
+// the build that imports this script.
+apply plugin: AndroidBuildHelperPlugin
+
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+
+/**
+ * http://aestasit.com/injecting-utility-methods-in-gradle-project-using-plugin-conventions
+ */
+class AndroidBuildHelperPlugin implements Plugin<Project> {
+    void apply(Project project) {
+    	project.convention.plugins["android-build-helper"] = new AndroidBuildHelperPluginConvention(project)
+    }
+}
+
+/**
+ * Plugin convention class.
+ */
+class AndroidBuildHelperPluginConvention {
+
+    private Project project
+
+    AndroidBuildHelperPluginConvention(Project project) {
+        this.project = project
+    }
+
+    /* DEFINE YOUR UTILITY METHODS HERE */
+
+    def versionCodeFromProjectVersion() {
+		//https://github.com/jayway/maven-android-plugin/blob/master/src/main/java/com/jayway/maven/plugins/android/standalonemojos/ManifestUpdateMojo.java
+        def INCREMENTAL_VERSION_POSITION = 1;
+        def MINOR_VERSION_POSITION = 1000;
+        def MAJOR_VERSION_POSITION = 1000000;
+
+        String verString = project.version
+
+        project.logger.debug("Generating versionCode for " + verString);
+
+        ArtifactVersion artifactVersion = new DefaultArtifactVersion(verString);
+
+        def currentVersionCode = artifactVersion.getMajorVersion() * MAJOR_VERSION_POSITION
+                               + artifactVersion.getMinorVersion() * MINOR_VERSION_POSITION
+                               + artifactVersion.getIncrementalVersion() * INCREMENTAL_VERSION_POSITION;
+        return currentVersionCode;
+    }
+
+}
