@@ -15,6 +15,7 @@ Method updated version code from project version as it is in android-maven-plugi
     android {
 	    ...
     	versionCode versionCodeFromProjectVersion()
+    	versionName project.version
     	...
     }
     
