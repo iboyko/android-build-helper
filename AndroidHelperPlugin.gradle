@@ -60,13 +60,14 @@ class AndroidBuildHelperPluginConvention {
 
         String verString = project.version
 
-        project.logger.debug("Generating versionCode for " + verString);
+        project.logger.info("Generating versionCode for " + verString);
 
         ArtifactVersion artifactVersion = new DefaultArtifactVersion(verString);
 
-        def currentVersionCode = artifactVersion.getMajorVersion() * MAJOR_VERSION_POSITION
-                               + artifactVersion.getMinorVersion() * MINOR_VERSION_POSITION
-                               + artifactVersion.getIncrementalVersion() * INCREMENTAL_VERSION_POSITION;
+        def currentVersionCode = artifactVersion.getMajorVersion() * MAJOR_VERSION_POSITION + artifactVersion.getMinorVersion() * MINOR_VERSION_POSITION + artifactVersion.getIncrementalVersion() * INCREMENTAL_VERSION_POSITION;
+		
+		project.logger.info("Version code is " + currentVersionCode);
+        
         return currentVersionCode;
     }
 
